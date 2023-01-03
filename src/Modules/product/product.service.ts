@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common/enums';
 import {
   BadRequestException,
   NotFoundException,
@@ -12,7 +13,7 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
-  ) {}
+  ) { }
 
   async create(data: ProductDto) {
     const product = this.productRepo.create(data);
@@ -38,13 +39,23 @@ export class ProductService {
     }
   }
 
-  async update(id) {
-    const product = await this.productRepo.findOne({ where: { id: id } });
+
+  async update(id: number, data: ProductDto) {
+    let product = await this.productRepo.findOne({ where: { id: id } });
     if (!product) {
       throw new NotFoundException('Id not found.');
     }
     try {
-      return product;
+      product.name = data.name
+      product.image = data.image
+      product.price = data.price
+      product.description = data.description
+      await this.productRepo.update({ id }, product);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'User updated successfully',
+        data: product
+      };;
     } catch (err) {
       throw new BadRequestException({ action: 'find product data' });
     }

@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Query } from "@nestjs/common";
+import { Patch } from "@nestjs/common/decorators";
 import { ProductDto } from "./dto/product.dto";
 import { ProductService } from "./product.service";
 
@@ -10,6 +11,7 @@ export class ProductController {
   getAll( ) {
     return this.productService.findAll();
   }
+
   @Post('/')
   async createUsers(@Body() data: ProductDto) {
      const user = await this.productService.create(data);
@@ -24,4 +26,10 @@ export class ProductController {
   getOnly( @Param() id) {
     return this.productService.findOnly(id);
   }
+
+  @Patch(':id')
+  async updateUser(@Param('id') id: number, @Body() data:ProductDto) {
+    return await this.productService.update(id, data);
+  }
+
 }
